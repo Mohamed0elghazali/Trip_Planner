@@ -20,6 +20,20 @@ places_df = pd.read_excel('places.xlsx')
 
 trip_prompt = PromptTemplate.from_template(template = TRIP_PLANNER_PROMPT_TEMPLATE)
 
+def set_model_params(llm,
+                    max_tokens: int = 256,
+                    temp: float = 0.7,
+                    top_k: int = 40,
+                    top_p: float = 0.1,
+                    streaming = False): 
+    llm.max_tokens = max_tokens
+    llm.temp = temp
+    llm.top_k = top_k
+    llm.top_p = top_p
+    llm.streaming = streaming
+    
+    return llm 
+
 def select_places_from_trip_data(user_data):
     chosen_activity = user_data["activities"]
     chosen_places = places_df[places_df['Activity'].isin(chosen_activity)]
@@ -27,6 +41,7 @@ def select_places_from_trip_data(user_data):
     return user_data
 
 def model_invocation(trip_data):
+    model = set_model_params(model, max_tokens=1024, temp=0.1)
     chain = trip_prompt | model
     
     t3 = perf_counter() 
